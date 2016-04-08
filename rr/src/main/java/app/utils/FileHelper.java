@@ -58,4 +58,20 @@ public class FileHelper {
         }
         return false;
     }
+
+    public static String getPasswordFromFile(String filename) throws IOException {
+        String password;
+        BufferedReader reader = new BufferedReader(new FileReader(filename));
+        password = reader.readLine();
+        reader.close();
+        return password;
+    }
+
+    public static void savePasswordToFile(String filename, String password) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
+        writer.write(password.toLowerCase());
+        writer.newLine();
+        writer.flush();
+        writer.close();
+    }
 }
