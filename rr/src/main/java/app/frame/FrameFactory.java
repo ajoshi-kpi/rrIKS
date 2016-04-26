@@ -3,6 +3,7 @@ package app.frame;
 import app.Constants;
 import app.utils.FileHelper;
 import app.utils.MathHelper;
+import app.utils.Md5Helper;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -32,8 +33,27 @@ public class FrameFactory implements Constants {
         this.pauses = pauses;
     }
 
-    public JFrame getLerningFrame() {
+    public JFrame getLearningFrame() {
         JFrame jFrame = new JFrame();
+        JPanel panel = new JPanel();
+        final JTextField textField = new JTextField(50);
+
+        textField.addKeyListener(new KeyListener() {
+            public void keyPressed(KeyEvent e) {
+                starts.add(new Date().getTime());
+            }
+
+            public void keyReleased(KeyEvent e) {
+                String currentLetter = e.getKeyText(e.getKeyCode());
+                letters.add(currentLetter);
+                ends.add(new Date().getTime());
+            }
+
+            public void keyTyped(KeyEvent e) {
+
+            }
+        });
+
         jFrame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -42,14 +62,26 @@ public class FrameFactory implements Constants {
                 try {
                     FileHelper.appendToFile(TIMES_PRESSED_FILE_NAME, calculateSuitable(timesPressed));
                     FileHelper.appendToFile(PAUSES_FILE_NAME, calculateSuitable(pauses));
-                    savePassword();
+                    savePassword(textField.getText());
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
             }
         });
+
+        panel.add(textField);
+        jFrame.getContentPane().add(panel);
+        jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        jFrame.pack();
+
+        return jFrame;
+    }
+
+    public JFrame getAuthenticationFrame() {
+        JFrame jFrame = new JFrame();
         JPanel panel = new JPanel();
-        JTextField textField = new JTextField(50);
+        final JTextField textField = new JTextField(50);
+
         textField.addKeyListener(new KeyListener() {
 
             public void keyPressed(KeyEvent e) {
@@ -66,22 +98,13 @@ public class FrameFactory implements Constants {
 
             }
         });
-        panel.add(textField);
-        jFrame.getContentPane().add(panel);
-        jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        jFrame.pack();
 
-        return jFrame;
-    }
-
-    public JFrame getAuthenticationFrame() {
-        JFrame jFrame = new JFrame();
         jFrame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 calculateDifference();
                 try {
-                    if (isCorrectPassword()) {
+                    if (isCorrectPassword(textField.getText())) {
                         try {
                             if (isValid()) {
                                 FileHelper.appendToFile(TIMES_PRESSED_FILE_NAME, calculateSuitable(timesPressed));
@@ -99,24 +122,6 @@ public class FrameFactory implements Constants {
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
-            }
-        });
-        JPanel panel = new JPanel();
-        JTextField textField = new JTextField(50);
-        textField.addKeyListener(new KeyListener() {
-
-            public void keyPressed(KeyEvent e) {
-                starts.add(new Date().getTime());
-            }
-
-            public void keyReleased(KeyEvent e) {
-                String currentLetter = e.getKeyText(e.getKeyCode());
-                letters.add(currentLetter);
-                ends.add(new Date().getTime());
-            }
-
-            public void keyTyped(KeyEvent e) {
-
             }
         });
         panel.add(textField);
@@ -159,7 +164,6 @@ public class FrameFactory implements Constants {
     }
 
     private boolean isValid() throws IOException {
-        List<Long> defaultTimesPressed = FileHelper.readFromFile(TIMES_PRESSED_FILE_NAME);
         List<Long> defaultPauses = FileHelper.readFromFile(PAUSES_FILE_NAME);
 
         double defaultPausesDispersion = MathHelper.calculateDispersion(defaultPauses);
@@ -175,21 +179,11 @@ public class FrameFactory implements Constants {
         return true;
     }
 
-    private boolean isCorrectPassword() throws IOException {
-        StringBuilder sb = new StringBuilder();
-        for (String letter : letters) {
-            sb.append(letter);
-        }
-        String currentPassword = sb.toString().trim();
-        return currentPassword.equalsIgnoreCase(FileHelper.getPasswordFromFile(PASSWORD_FILE_NAME));
+    private boolean isCorrectPassword(String currentPassword) throws IOException {
+        return Md5Helper.md5Custom(currentPassword).equalsIgnoreCase(FileHelper.getPasswordFromFile(PASSWORD_FILE_NAME));
     }
 
-    private void savePassword() throws IOException {
-        StringBuilder sb = new StringBuilder();
-        for (String letter : letters) {
-            sb.append(letter);
-        }
-        String currentPassword = sb.toString().trim();
-        FileHelper.savePasswordToFile(PASSWORD_FILE_NAME, currentPassword);
+    private void savePassword(String currentPassword) throws IOException {
+        FileHelper.savePasswordToFile(PASSWORD_FILE_NAME, Md5Helper.md5Custom(currentPassword));
     }
 }

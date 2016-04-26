@@ -26,6 +26,6 @@ public class Learning implements Constants {
     }
 
     public static void main(String[] args) {
-        frameFactory.getLerningFrame().setVisible(true);
+        frameFactory.getLearningFrame().setVisible(true);
     }
 }
