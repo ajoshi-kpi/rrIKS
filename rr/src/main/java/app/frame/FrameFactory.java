@@ -34,10 +34,9 @@ public class FrameFactory implements Constants {
     public JFrame getLearningFrame() {
         JFrame jFrame = new JFrame();
         jFrame.setLayout(new GridLayout(0, 1));
-        JPanel panel = new JPanel(new GridLayout(0,1));
+        JPanel panel = new JPanel(new GridLayout(0, 1));
         Label mainLabel = new Label("Enter learning phrase: ");
         Button confirmButton = new Button("Confirm");
-        Button clear = new Button("Clear");
         Button back = new Button("Back");
         final JTextField textField = new JTextField(50);
 
@@ -57,18 +56,6 @@ public class FrameFactory implements Constants {
             }
         });
 
-        clear.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                textField.setText("");
-                textField.requestFocusInWindow();
-                starts.clear();
-                ends.clear();
-                timesPressed.clear();
-                pauses.clear();
-            }
-        });
-
         confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -79,6 +66,12 @@ public class FrameFactory implements Constants {
                     FileHelper.appendToFile(TIMES_PRESSED_FILE_NAME, calculateSuitable(timesPressed));
                     FileHelper.appendToFile(PAUSES_FILE_NAME, calculateSuitable(pauses));
                     savePassword(textField.getText());
+                    textField.setText("");
+                    textField.requestFocusInWindow();
+                    starts.clear();
+                    ends.clear();
+                    timesPressed.clear();
+                    pauses.clear();
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
@@ -96,7 +89,6 @@ public class FrameFactory implements Constants {
         panel.add(mainLabel);
         panel.add(textField);
         panel.add(confirmButton);
-        panel.add(clear);
         panel.add(back);
         jFrame.getContentPane().add(panel);
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -108,10 +100,9 @@ public class FrameFactory implements Constants {
     public JFrame getAuthenticationFrame() {
         JFrame jFrame = new JFrame();
         jFrame.setLayout(new GridLayout(0, 1));
-        JPanel panel = new JPanel(new GridLayout(0,1));
+        JPanel panel = new JPanel(new GridLayout(0, 1));
         Label mainLabel = new Label("Enter passphrase: ");
         Button confirmButton = new Button("Confirm");
-        Button clear = new Button("Clear");
         Button back = new Button("Back");
         Label result = new Label();
         final JTextField textField = new JTextField(50);
@@ -133,18 +124,6 @@ public class FrameFactory implements Constants {
             }
         });
 
-        clear.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                textField.setText("");
-                textField.requestFocusInWindow();
-                starts.clear();
-                ends.clear();
-                timesPressed.clear();
-                pauses.clear();
-            }
-        });
-
         confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -159,6 +138,7 @@ public class FrameFactory implements Constants {
                             } else {
                                 result.setText("NOT VALID");
                             }
+
                         } catch (IOException e1) {
                             e1.printStackTrace();
                         }
@@ -168,6 +148,12 @@ public class FrameFactory implements Constants {
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
+                textField.setText("");
+                textField.requestFocusInWindow();
+                starts.clear();
+                ends.clear();
+                timesPressed.clear();
+                pauses.clear();
             }
         });
 
@@ -182,7 +168,6 @@ public class FrameFactory implements Constants {
         panel.add(mainLabel);
         panel.add(textField);
         panel.add(confirmButton);
-        panel.add(clear);
         panel.add(back);
         panel.add(result);
         jFrame.getContentPane().add(panel);
