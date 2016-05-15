@@ -6,10 +6,8 @@ import app.utils.MathHelper;
 import app.utils.Md5Helper;
 
 import javax.swing.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,7 +33,12 @@ public class FrameFactory implements Constants {
 
     public JFrame getLearningFrame() {
         JFrame jFrame = new JFrame();
-        JPanel panel = new JPanel();
+        jFrame.setLayout(new GridLayout(0, 1));
+        JPanel panel = new JPanel(new GridLayout(0,1));
+        Label mainLabel = new Label("Enter learning phrase: ");
+        Button confirmButton = new Button("Confirm");
+        Button clear = new Button("Clear");
+        Button back = new Button("Back");
         final JTextField textField = new JTextField(50);
 
         textField.addKeyListener(new KeyListener() {
@@ -54,12 +57,25 @@ public class FrameFactory implements Constants {
             }
         });
 
-        jFrame.addWindowListener(new WindowAdapter() {
+        clear.addActionListener(new ActionListener() {
             @Override
-            public void windowClosing(WindowEvent e) {
+            public void actionPerformed(ActionEvent e) {
+                textField.setText("");
+                textField.requestFocusInWindow();
+                starts.clear();
+                ends.clear();
+                timesPressed.clear();
+                pauses.clear();
+            }
+        });
 
+        confirmButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 calculateDifference();
                 try {
+                    System.out.println(timesPressed);
+                    System.out.println(pauses);
                     FileHelper.appendToFile(TIMES_PRESSED_FILE_NAME, calculateSuitable(timesPressed));
                     FileHelper.appendToFile(PAUSES_FILE_NAME, calculateSuitable(pauses));
                     savePassword(textField.getText());
@@ -69,7 +85,19 @@ public class FrameFactory implements Constants {
             }
         });
 
+        back.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                jFrame.setVisible(false);
+                getMainFrame().setVisible(true);
+            }
+        });
+
+        panel.add(mainLabel);
         panel.add(textField);
+        panel.add(confirmButton);
+        panel.add(clear);
+        panel.add(back);
         jFrame.getContentPane().add(panel);
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jFrame.pack();
@@ -79,7 +107,13 @@ public class FrameFactory implements Constants {
 
     public JFrame getAuthenticationFrame() {
         JFrame jFrame = new JFrame();
-        JPanel panel = new JPanel();
+        jFrame.setLayout(new GridLayout(0, 1));
+        JPanel panel = new JPanel(new GridLayout(0,1));
+        Label mainLabel = new Label("Enter passphrase: ");
+        Button confirmButton = new Button("Confirm");
+        Button clear = new Button("Clear");
+        Button back = new Button("Back");
+        Label result = new Label();
         final JTextField textField = new JTextField(50);
 
         textField.addKeyListener(new KeyListener() {
@@ -99,9 +133,21 @@ public class FrameFactory implements Constants {
             }
         });
 
-        jFrame.addWindowListener(new WindowAdapter() {
+        clear.addActionListener(new ActionListener() {
             @Override
-            public void windowClosing(WindowEvent e) {
+            public void actionPerformed(ActionEvent e) {
+                textField.setText("");
+                textField.requestFocusInWindow();
+                starts.clear();
+                ends.clear();
+                timesPressed.clear();
+                pauses.clear();
+            }
+        });
+
+        confirmButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 calculateDifference();
                 try {
                     if (isCorrectPassword(textField.getText())) {
@@ -109,22 +155,36 @@ public class FrameFactory implements Constants {
                             if (isValid()) {
                                 FileHelper.appendToFile(TIMES_PRESSED_FILE_NAME, calculateSuitable(timesPressed));
                                 FileHelper.appendToFile(PAUSES_FILE_NAME, calculateSuitable(pauses));
-                                System.out.println("VALID");
+                                result.setText("VALID");
                             } else {
-                                System.out.println("NOT VALID");
+                                result.setText("NOT VALID");
                             }
                         } catch (IOException e1) {
                             e1.printStackTrace();
                         }
                     } else {
-                        System.out.println("Password is incorrect");
+                        result.setText("Password is incorrect");
                     }
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
             }
         });
+
+        back.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                jFrame.setVisible(false);
+                getMainFrame().setVisible(true);
+            }
+        });
+
+        panel.add(mainLabel);
         panel.add(textField);
+        panel.add(confirmButton);
+        panel.add(clear);
+        panel.add(back);
+        panel.add(result);
         jFrame.getContentPane().add(panel);
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jFrame.pack();
@@ -132,6 +192,41 @@ public class FrameFactory implements Constants {
         return jFrame;
     }
 
+    public JFrame getMainFrame() {
+        JFrame jFrame = new JFrame();
+        JPanel panel = new JPanel();
+        Label mainLabel = new Label("Chose application mode: ");
+        Button learningButton = new Button();
+        learningButton.setLabel("Learning mode");
+        Button authenticateButton = new Button();
+        authenticateButton.setLabel("Authentication mode");
+
+        learningButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                jFrame.setVisible(false);
+                getLearningFrame().setVisible(true);
+            }
+        });
+
+        authenticateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                jFrame.setVisible(false);
+                getAuthenticationFrame().setVisible(true);
+            }
+        });
+
+        panel.add(mainLabel);
+        panel.add(learningButton);
+        panel.add(authenticateButton);
+
+        jFrame.getContentPane().add(panel);
+        jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        jFrame.pack();
+
+        return jFrame;
+    }
 
     private void calculateDifference() {
         for (int i = 0; i < starts.size(); i++) {
